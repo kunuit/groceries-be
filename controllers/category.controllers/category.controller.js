@@ -12,7 +12,7 @@ const createCategory = async (req,res) => {
     })
 
     if(!data) throw new Error('Do not create category')
-    else res.send(data)
+    return res.send(data)
   } catch (error) {
     res.status(400).send({ message: error.message });
   }
@@ -24,7 +24,7 @@ const getAllCategory = async (req,res) => {
     const query = await categorySchema.find({isDeleted: false})
     console.log(query)
     if(!query) throw new Error('category is empty')
-    query && res.send(query)
+    return  res.send(query)
   } catch (error) {
     res.status(400).send({ message: error.message });
   }

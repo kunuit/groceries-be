@@ -16,7 +16,7 @@ const getAllProductCustomer = async (req,res) => {
 
     if(!listProduct) throw new Error('Do not query image in product')
 
-    res.send(listProduct)
+    return res.send(listProduct)
 
   } catch (error) {
     res.status(400).send({ message: error.message });

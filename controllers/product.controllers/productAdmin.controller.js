@@ -2,12 +2,14 @@
 const ProductSchema = require('../../models/schema/product.schema')
 const ProductImageSchema = require('../../models/schema/productImage.schema')
 
+const { cloudinary } = require('../../utils/upload/cloudinary')
+
 const createProduct = async (req,res) => {
   try {
     const {name, description, price, categoryId, measureId, features, height, length, weight, width } = req.body
     // console.log({name, description, price, categoryId, measureId, features, height, length, weight, width}, 'data')
 
-    const urlImage = 'https://lh3.googleusercontent.com/proxy/Bo2jK1aYpGE29Lz8FIMuAY8yuwFZhOCeETa0ep5cXgZDBG07Hc5tcbQ5hij_46D4F_lK9WFf7IXtDr0tI3GagCOq3H46d480sgf8kQ'
+    const {images} = req.files
     
     const productDetail = await ProductSchema.create({
       name,
@@ -24,14 +26,53 @@ const createProduct = async (req,res) => {
 
     if(!productDetail) throw new Error('Do not create productDetail')
 
-    const productImage = await ProductImageSchema.create({
-      url: urlImage,
-      productId: productDetail._id
-    })
+    // some image
+    if(images.length >= 2) {
+      const imageUrls = await Promise.all(
+        images.map( async (e) => {
+          const imgEncoded = "data:image/png;base64," + e.data.toString('base64')
+          
+          const uploadedResponse  = await cloudinary.uploader.upload(imgEncoded, {
+            upload_preset: 'productImage',
+          });
+          return uploadedResponse.url;
+        })
+        )
+        
+        if(!imageUrls) throw new Error('Do not upload images')
+        
+        const productImages = await Promise.all(
+          imageUrls.map( async url => {
+            const productImage = await ProductImageSchema.create({
+              url,
+              productId: productDetail._id
+            }) 
+            return productImage
+          })
+          )
+          if(!productImages) throw new Error('Do not create productImages')
 
-    if(!productImage) throw new Error('Do not create productImage')
+        return  res.send({message: 'product is created successfully'})
+          
+    }
+    else {
+      // one image
 
-    res.send({message: 'product is created successfully'})
+      const imgEncoded = "data:image/png;base64," + images.data.toString('base64')
+      
+      const uploadedResponse  = await cloudinary.uploader.upload(imgEncoded, {
+        upload_preset: 'productImage',
+      });
+      
+      const productImage = await ProductImageSchema.create({
+        url: uploadedResponse.url,
+        productId: productDetail._id
+      })
+      
+      if(!productImage) throw new Error('Do not create productImage')      
+      
+      return  res.send({message: 'product is created successfully'})
+    }
   } catch (error) {
     res.status(400).send({ message: error.message });
   }
