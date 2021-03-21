@@ -1,28 +1,31 @@
-const ProductSchema  = require('../../models/schema/product.schema')
-const ProductImageSchema = require('../../models/schema/productImage.schema')
+const _ = require("lodash");
 
-const getAllProductCustomer = async (req,res) => {
+const ProductSchema = require("../../models/schema/product.schema");
+const ProductImageSchema = require("../../models/schema/productImage.schema");
+
+const getAllProductCustomer = async (req, res) => {
   try {
-    const queryProduct = await ProductSchema.find({isDeleted: false})
-    if(!queryProduct) throw new Error('Do not query all product')
+    const queryProduct = await ProductSchema.find({ isDeleted: false });
+    if (!queryProduct) throw new Error("Do not query all product");
 
-    const listProduct = await Promise.all(queryProduct.map(async (item) => {
-      const arrImage = await ProductImageSchema.find({productId: item._id})
-      return {
-        ...item._doc,
-        urlImages: arrImage
-      }
-    }))
+    const listProduct = await Promise.all(
+      queryProduct.map(async (item) => {
+        const arrImage = await ProductImageSchema.find({ productId: item._id });
+        return {
+          ...item._doc,
+          urlImages: _.map(arrImage, "url"),
+        };
+      }),
+    );
 
-    if(!listProduct) throw new Error('Do not query image in product')
+    if (!listProduct) throw new Error("Do not query image in product");
 
-    return res.send(listProduct)
-
+    return res.send(listProduct);
   } catch (error) {
     res.status(400).send({ message: error.message });
   }
-}
+};
 
 module.exports = {
-  getAllProductCustomer
-}
+  getAllProductCustomer,
+};

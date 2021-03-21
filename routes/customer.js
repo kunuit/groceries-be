@@ -1,9 +1,21 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+const verifyToken = require("../middlewares/verifyToken");
+const AuthController = require("../controllers/customer.controllers/auth.controllers");
+const BasketController = require("../controllers/customer.controllers/basket.controllers");
+const FavoriteController = require("../controllers/customer.controllers/favorite.controllers");
+
+// auth
+router.post("/login", AuthController.logIn);
+router.post("/register", AuthController.register);
+
+// basket
+router.get("/basket", verifyToken, BasketController.getAllBasket);
+router.post("/basket", verifyToken, BasketController.addProductToBasket);
+
+// favorite
+router.get("/favorite", verifyToken, FavoriteController.getAllFavorite);
+router.post("/favorite", verifyToken, FavoriteController.addProductToFavorite);
 
 module.exports = router;
