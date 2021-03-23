@@ -1,6 +1,7 @@
 const SchemaFavorite = require("../../models/schema/favorite.schema");
 const SchemaFavoriteItem = require("../../models/schema/favoriteItem.schema");
 const SchemaProduct = require("../../models/schema/product.schema");
+const { resSuccess, resError } = require("../../utils/response");
 
 const addProductToFavorite = async (req, res) => {
   try {
@@ -27,7 +28,7 @@ const addProductToFavorite = async (req, res) => {
       }),
     );
 
-    itemFavorites && res.send("addProductToFavorite is success");
+    return resSuccess(res, "addProductToFavorite is success");
   } catch (error) {
     res.status(400).send({ message: error.message });
   }
@@ -45,11 +46,12 @@ const getAllFavorite = async (req, res) => {
       favoriteId: isFavorite._id,
     }).populate("productId");
 
-    if (!itemInFavorites || itemInFavorites.length == 0) res.send([]);
+    if (!itemInFavorites || itemInFavorites.length == 0)
+      return resSuccess(res, []);
 
-    return res.send(itemInFavorites);
+    return resSuccess(res, itemInFavorites);
   } catch (error) {
-    res.status(400).send({ message: error.message });
+    return resError(res, { message: error.message });
   }
 };
 

@@ -1,24 +1,29 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const CategorySchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true
+const CategorySchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    tier: {
+      type: Number,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    color: {
+      type: String,
+      default: "#ffffff",
+    },
+    parentID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Categories",
+    },
   },
-  tier: {
-    type: Number,
-  },
-  isDeleted: {
-    type: Boolean,
-    default: false
-  },
-  parentID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Categories',
-  }
-  
-}, { timestamps: true })
+  { timestamps: true },
+);
 
-
-module.exports = mongoose.model('Categories', CategorySchema);
+module.exports = mongoose.model("Categories", CategorySchema);

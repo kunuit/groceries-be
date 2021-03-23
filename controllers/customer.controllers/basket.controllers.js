@@ -1,6 +1,7 @@
 const SchemaBasket = require("../../models/schema/basket.schema");
 const SchemaItemBasket = require("../../models/schema/basketItem.schema");
 const SchemaProduct = require("../../models/schema/product.schema");
+const { resSuccess, resError } = require("../../utils/response");
 
 const addProductToBasket = async (req, res) => {
   try {
@@ -37,9 +38,9 @@ const addProductToBasket = async (req, res) => {
 
     await createBasket.save();
 
-    itemBasketsNotExit && res.send("addProductToBasket is success");
+    return resSuccess(res, "addProductToBasket is success");
   } catch (error) {
-    res.status(400).send({ message: error.message });
+    return resError(res, { message: error.message });
   }
 };
 
@@ -49,7 +50,9 @@ const getAllBasket = async (req, res) => {
 
     const allBasketOfCustomer = await SchemaBasket.find({ customerId });
 
-    if (!allBasketOfCustomer || allBasketOfCustomer.length == 0) res.send([]);
+    if (!allBasketOfCustomer || allBasketOfCustomer.length == 0) {
+      return resSuccess(res, []);
+    }
 
     const BasketDetails = await Promise.all(
       allBasketOfCustomer.map(async (basket) => {
@@ -64,9 +67,9 @@ const getAllBasket = async (req, res) => {
       }),
     );
 
-    return res.send(BasketDetails);
+    return resSuccess(res, BasketDetails);
   } catch (error) {
-    res.status(400).send({ message: error.message });
+    return resError(res, { message: error.message });
   }
 };
 

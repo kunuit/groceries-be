@@ -1,36 +1,36 @@
-const categorySchema = require('../../models/schema/category.schema')
+const categorySchema = require("../../models/schema/category.schema");
+const { resSuccess, resError } = require("../../utils/response");
 
-
-const createCategory = async (req,res) => {
+const createCategory = async (req, res) => {
   try {
-    const {tier, name, parentId} = req.body
-    
+    const { tier, name, parentId, color } = req.body;
+
     const data = await categorySchema.create({
       tier,
       name,
-      parentId
-    })
+      parentId,
+      color,
+    });
 
-    if(!data) throw new Error('Do not create category')
-    return res.send(data)
+    if (!data) throw new Error("Do not create category");
+    return resSuccess(res, data);
   } catch (error) {
-    res.status(400).send({ message: error.message });
+    return resError(res, { message: error.message });
   }
-}
+};
 
-
-const getAllCategory = async (req,res) => {
+const getAllCategory = async (req, res) => {
   try {
-    const query = await categorySchema.find({isDeleted: false})
-    console.log(query)
-    if(!query) throw new Error('category is empty')
-    return  res.send(query)
+    const query = await categorySchema.find({ isDeleted: false });
+    console.log(query);
+    if (!query) throw new Error("category is empty");
+    return resSuccess(res, query);
   } catch (error) {
-    res.status(400).send({ message: error.message });
+    return resError(res, { message: error.message });
   }
-}
+};
 
 module.exports = {
   createCategory,
-  getAllCategory
-}
+  getAllCategory,
+};
