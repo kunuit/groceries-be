@@ -1,10 +1,11 @@
-const { sign } = require("jsonwebtoken");
+const { sign, verify } = require("jsonwebtoken");
 const { hash, compare } = require("bcryptjs");
 require("dotenv").config();
 
 const SchemaCustomer = require("../../models/schema/customer.schema");
 const SchemaFavorite = require("../../models/schema/favorite.schema");
 const SchemaAddress = require("../../models/schema/addressCustomer.schema");
+const SchemaRefreshToken = require("../../models/schema/refeshToken.schema");
 const { resSuccess, resError } = require("../../utils/response");
 
 const register = async (req, res) => {
@@ -65,10 +66,29 @@ const logIn = async (req, res) => {
         email: isInfo.email,
       },
       process.env.SECRET_TOKEN,
-      { expiresIn: "999 years" },
+      { expiresIn: "30s" },
     );
+
+    const refreshToken = sign(
+      {
+        username: isInfo.username,
+        email: isInfo.email,
+      },
+      process.env.SECRET_REFRESH_TOKEN,
+      {
+        expiresIn: "1 year",
+      },
+    );
+
+    const addRefreshToken = await SchemaRefreshToken.create({
+      refreshToken,
+      email: isInfo.email,
+      expiresIn: "1 year",
+    });
+
     return resSuccess(res, {
       token,
+      refreshToken,
       username: isInfo.username,
       id: isInfo._id,
       email: isInfo.email,
@@ -80,7 +100,47 @@ const logIn = async (req, res) => {
     return resError(res, { message: error.message });
   }
 };
+
+const onRefreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken)
+      return resError(res, {
+        message: "Empty refreshToken",
+      });
+    const isRefreshToken = await SchemaRefreshToken.findOne({
+      refreshToken,
+    });
+    if (!isRefreshToken)
+      return resError(res, {
+        message: "Invalid refreshToken",
+      });
+    const { username } = verify(refreshToken, process.env.SECRET_REFRESH_TOKEN);
+    const customer = await SchemaCustomer.findOne({ username });
+    if (!customer)
+      return resError(res, {
+        message: "Invalid customer",
+      });
+
+    const accessToken = sign(
+      {
+        username: customer.username,
+        email: customer.email,
+      },
+      process.env.SECRET_TOKEN,
+      { expiresIn: "60s" },
+    );
+    return resSuccess(res, {
+      accessToken,
+    });
+  } catch (error) {
+    return resError(res, {
+      message: error.message,
+    });
+  }
+};
 module.exports = {
   register,
   logIn,
+  onRefreshToken,
 };

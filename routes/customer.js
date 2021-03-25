@@ -9,6 +9,7 @@ const FavoriteController = require("../controllers/customer.controllers/favorite
 // auth
 router.post("/login", AuthController.logIn);
 router.post("/register", AuthController.register);
+router.post("/refreshToken", AuthController.onRefreshToken);
 
 // basket
 router.get("/basket", verifyToken, BasketController.getAllBasket);
