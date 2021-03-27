@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-const CustomerSchema = new mongoose.Schema(
+const AdminSchema = new mongoose.Schema(
   {
     isDeleted: {
       type: Boolean,
@@ -31,6 +31,14 @@ const CustomerSchema = new mongoose.Schema(
     gender: {
       type: Number,
     },
+    addressDetail: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
     avatar: {
       type: String,
       default:
@@ -40,7 +48,7 @@ const CustomerSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-CustomerSchema.pre("save", async function (next) {
+AdminSchema.pre("save", async function (next) {
   var customer = this;
 
   // only hash the password if it has been modified (or is new)
@@ -54,4 +62,4 @@ CustomerSchema.pre("save", async function (next) {
   next();
 });
 
-module.exports = mongoose.model("Customers", CustomerSchema);
+module.exports = mongoose.model("Admins", AdminSchema);
