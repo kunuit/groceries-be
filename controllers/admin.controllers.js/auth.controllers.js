@@ -53,7 +53,7 @@ const logIn = async (req, res) => {
         email: isInfo.email,
       },
       process.env.SECRET_TOKEN,
-      { expiresIn: "30s" },
+      { expiresIn: "15m" },
     );
 
     const refreshToken = sign(

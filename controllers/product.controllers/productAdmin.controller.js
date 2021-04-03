@@ -18,6 +18,7 @@ const createProduct = async (req, res) => {
       weight,
       width,
     } = req.body;
+
     // console.log({name, description, price, categoryId, measureId, features, height, length, weight, width}, 'data')
 
     const { images } = req.files;
